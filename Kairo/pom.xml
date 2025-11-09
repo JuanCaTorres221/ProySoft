@@ -8,8 +8,8 @@
         <version>3.5.6</version>
         <relativePath/>
     </parent>
-    <groupId>com.zoo</groupId>
-    <artifactId>kairo</artifactId>
+    <groupId>com.kairo</groupId>
+    <artifactId>kairo_emocion</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>kairo_emocion</name>
     <description>Sistema que permita gestionar las mejores emociones de las personas</description>
