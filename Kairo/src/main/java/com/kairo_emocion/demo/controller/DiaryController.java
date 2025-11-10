@@ -1,27 +1,27 @@
 package com.kairo_emocion.demo.controller;
 
+import com.kairo_emocion.demo.dto.DiaryRequest;
 import com.kairo_emocion.demo.model.Diary;
 import com.kairo_emocion.demo.model.User;
 import com.kairo_emocion.demo.model.Emotion;
 import com.kairo_emocion.demo.service.DiaryService;
 import com.kairo_emocion.demo.service.UserService;
 import com.kairo_emocion.demo.service.EmotionService;
+import com.kairo_emocion.demo.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
-@Controller
-@RequestMapping("/diary")
+@RestController
+@RequestMapping("/api/diaries")
 public class DiaryController {
 
     @Autowired
-    private DiaryService DiaryService;
+    private DiaryService diaryService;
 
     @Autowired
     private UserService userService;
@@ -30,127 +30,94 @@ public class DiaryController {
     private EmotionService emotionService;
 
     @GetMapping
-    public String listdiary(Model model) {
-        List<Diary> entries = DiaryService.findAll();
-        model.addAttribute("entries", entries);
-        return "diary/list";
-    }
-
-    @GetMapping("/create")
-    public String showCreateForm(Model model) {
-        model.addAttribute("diary", new Diary());
-
-        List<User> users = userService.findAll();
-        List<Emotion> emotions = emotionService.findAll();
-
-        model.addAttribute("users", users);
-        model.addAttribute("emotions", emotions);
-
-        return "diary/create";
-    }
-
-    @PostMapping("/create")
-    public String creatediary(@Valid @ModelAttribute("diary") Diary diary,
-                              BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            // Recargar datos si hay error
-            List<User> users = userService.findAll();
-            List<Emotion> emotions = emotionService.findAll();
-            model.addAttribute("users", users);
-            model.addAttribute("emotions", emotions);
-            return "diary/create";
-        }
-        try {
-            DiaryService.save(diary);
-            return "redirect:/diary";
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al crear la entrada: " + e.getMessage());
-
-            // Recargar datos si hay excepción
-            List<User> users = userService.findAll();
-            List<Emotion> emotions = emotionService.findAll();
-            model.addAttribute("users", users);
-            model.addAttribute("emotions", emotions);
-
-            return "diary/create";
-        }
+    public List<Diary> getAllDiaries() {
+        return diaryService.findAll();
     }
 
     @GetMapping("/{id}")
-    public String getdiaryDetails(@PathVariable Long id, Model model) {
-        Optional<Diary> entry = DiaryService.findById(id);
-        if (entry.isPresent()) {
-            model.addAttribute("entry", entry.get());
-            return "diary/details";
-        } else {
-            return "redirect:/diary";
+    public ResponseEntity<Diary> getDiaryById(@PathVariable Long id) {
+        try {
+            Diary diary = diaryService.findById(id);
+            return ResponseEntity.ok(diary);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
-        Optional<Diary> entry = DiaryService.findById(id);
-        if (entry.isPresent()) {
-            model.addAttribute("diary", entry.get());
-
-            // Cargar usuarios y emociones
-            List<User> users = userService.findAll();
-            List<Emotion> emotions = emotionService.findAll();
-            model.addAttribute("users", users);
-            model.addAttribute("emotions", emotions);
-
-            return "diary/edit";
-        } else {
-            return "redirect:/diary";
-        }
-    }
-
-    @PostMapping("/edit/{id}")
-    public String updatediary(@PathVariable Long id,
-                              @Valid @ModelAttribute("diary") Diary diary,
-                              BindingResult result, Model model) {
+    @PostMapping
+    public ResponseEntity<?> createDiary(@Valid @RequestBody DiaryRequest diaryRequest, BindingResult result) {
         if (result.hasErrors()) {
-            // Recargar datos si hay error
-            List<User> users = userService.findAll();
-            List<Emotion> emotions = emotionService.findAll();
-            model.addAttribute("users", users);
-            model.addAttribute("emotions", emotions);
-            return "diary/edit";
+            return ResponseEntity.badRequest().body("Error de validación: " + result.getAllErrors());
         }
         try {
-            diary.setId(id);
-            DiaryService.save(diary);
-            return "redirect:/diary";
+            // Buscar el usuario
+            User user = userService.findById(diaryRequest.getUserId());
+
+            // Buscar la emoción
+            Emotion emotion = emotionService.findById(diaryRequest.getEmotionId());
+
+            // Crear la entidad Diary
+            Diary diary = new Diary();
+            diary.setUser(user);
+            diary.setEmotion(emotion);
+            diary.setNotes(diaryRequest.getNotes());
+            diary.setEntryDate(diaryRequest.getEntryDate());
+
+            Diary savedDiary = diaryService.save(diary);
+            return ResponseEntity.ok(savedDiary);
+
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body("Recurso no encontrado: " + e.getMessage());
         } catch (Exception e) {
-            model.addAttribute("error", "Error al actualizar la entrada: " + e.getMessage());
-
-            // Recargar datos si hay excepción
-            List<User> users = userService.findAll();
-            List<Emotion> emotions = emotionService.findAll();
-            model.addAttribute("users", users);
-            model.addAttribute("emotions", emotions);
-
-            return "diary/edit";
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
 
-    @GetMapping("/delete/{id}")
-    public String deletediary(@PathVariable Long id) {
-        DiaryService.deleteById(id);
-        return "redirect:/diary";
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateDiary(@PathVariable Long id, @Valid @RequestBody DiaryRequest diaryRequest, BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body("Error de validación: " + result.getAllErrors());
+        }
+        try {
+            // Buscar el usuario
+            User user = userService.findById(diaryRequest.getUserId());
+
+            // Buscar la emoción
+            Emotion emotion = emotionService.findById(diaryRequest.getEmotionId());
+
+            Diary diaryData = new Diary();
+            diaryData.setUser(user);
+            diaryData.setEmotion(emotion);
+            diaryData.setNotes(diaryRequest.getNotes());
+            diaryData.setEntryDate(diaryRequest.getEntryDate());
+
+            Diary updatedDiary = diaryService.updateDiaryEntry(id, diaryData);
+            return ResponseEntity.ok(updatedDiary);
+
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body("Recurso no encontrado: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteDiary(@PathVariable Long id) {
+        try {
+            diaryService.deleteById(id);
+            return ResponseEntity.ok("Entrada eliminada");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/user/{userId}")
-    public String getEntriesByUser(@PathVariable Long userId, Model model) {
-        List<Diary> userEntries = DiaryService.findByUserId(userId);
-        Optional<User> user = userService.findById(userId);
-
-        if (user.isPresent()) {
-            model.addAttribute("entries", userEntries);
-            model.addAttribute("user", user.get());
-            return "diary/user-entries";
-        } else {
-            return "redirect:/users";
+    public ResponseEntity<?> getDiariesByUser(@PathVariable Long userId) {
+        try {
+            List<Diary> diaries = diaryService.findByUserId(userId);
+            return ResponseEntity.ok(diaries);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

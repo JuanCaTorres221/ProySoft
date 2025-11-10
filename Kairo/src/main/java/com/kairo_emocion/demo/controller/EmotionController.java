@@ -1,93 +1,84 @@
 package com.kairo_emocion.demo.controller;
 
+import com.kairo_emocion.demo.dto.EmotionRequest;
 import com.kairo_emocion.demo.model.Emotion;
 import com.kairo_emocion.demo.service.EmotionService;
+import com.kairo_emocion.demo.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
-@Controller
-@RequestMapping("/emotions")
+@RestController
+@RequestMapping("/api/emotions")
 public class EmotionController {
 
     @Autowired
     private EmotionService emotionService;
 
     @GetMapping
-    public String listEmotions(Model model) {
-        List<Emotion> emotions = emotionService.findAll();
-        model.addAttribute("emotions", emotions);
-        return "emotion/list";
-    }
-
-    @GetMapping("/create")
-    public String showCreateForm(Model model) {
-        model.addAttribute("emotion", new Emotion());
-        return "emotion/create";
-    }
-
-    @PostMapping("/create")
-    public String createEmotion(@Valid @ModelAttribute Emotion emotion,
-                                BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            return "emotion/create";
-        }
-        try {
-            emotionService.save(emotion);
-            return "redirect:/emotions";
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al crear la emoción: " + e.getMessage());
-            return "emotion/create";
-        }
+    public List<Emotion> getAllEmotions() {
+        return emotionService.findAll();
     }
 
     @GetMapping("/{id}")
-    public String getEmotionDetails(@PathVariable Long id, Model model) {
-        Optional<Emotion> emotion = emotionService.findById(id);
-        if (emotion.isPresent()) {
-            model.addAttribute("emotion", emotion.get());
-            return "emotion/details";
-        } else {
-            return "redirect:/emotions";
+    public ResponseEntity<Emotion> getEmotionById(@PathVariable Long id) {
+        try {
+            Emotion emotion = emotionService.findById(id);
+            return ResponseEntity.ok(emotion);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
-        Optional<Emotion> emotion = emotionService.findById(id);
-        if (emotion.isPresent()) {
-            model.addAttribute("emotion", emotion.get());
-            return "emotion/edit";
-        } else {
-            return "redirect:/emotions";
-        }
-    }
-
-    @PostMapping("/edit/{id}")
-    public String updateEmotion(@PathVariable Long id, @Valid @ModelAttribute Emotion emotion,
-                                BindingResult result, Model model) {
+    @PostMapping
+    public ResponseEntity<?> createEmotion(@Valid @RequestBody EmotionRequest emotionRequest, BindingResult result) {
         if (result.hasErrors()) {
-            return "emotion/edit";
+            return ResponseEntity.badRequest().body("Error de validación: " + result.getAllErrors());
         }
         try {
-            emotion.setId(id);
-            emotionService.save(emotion);
-            return "redirect:/emotions";
+            Emotion emotion = new Emotion();
+            emotion.setName(emotionRequest.getName());
+            emotion.setColor(emotionRequest.getColor());
+            emotion.setIntensity(emotionRequest.getIntensity());
+            emotion.setDescription(emotionRequest.getDescription());
+
+            Emotion savedEmotion = emotionService.createEmotion(emotion);
+            return ResponseEntity.ok(savedEmotion);
         } catch (Exception e) {
-            model.addAttribute("error", "Error al actualizar la emoción: " + e.getMessage());
-            return "emotion/edit";
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteEmotion(@PathVariable Long id) {
-        emotionService.deleteById(id);
-        return "redirect:/emotions";
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEmotion(@PathVariable Long id, @Valid @RequestBody EmotionRequest emotionRequest, BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body("Error de validación: " + result.getAllErrors());
+        }
+        try {
+            Emotion emotionData = new Emotion();
+            emotionData.setName(emotionRequest.getName());
+            emotionData.setColor(emotionRequest.getColor());
+            emotionData.setIntensity(emotionRequest.getIntensity());
+            emotionData.setDescription(emotionRequest.getDescription());
+
+            Emotion updatedEmotion = emotionService.updateEmotion(id, emotionData);
+            return ResponseEntity.ok(updatedEmotion);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteEmotion(@PathVariable Long id) {
+        try {
+            emotionService.deleteById(id);
+            return ResponseEntity.ok("Emoción eliminada");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

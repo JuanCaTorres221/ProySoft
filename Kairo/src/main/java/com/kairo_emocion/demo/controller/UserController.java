@@ -1,97 +1,82 @@
 package com.kairo_emocion.demo.controller;
 
+import com.kairo_emocion.demo.dto.UserRequest;
 import com.kairo_emocion.demo.model.User;
 import com.kairo_emocion.demo.service.UserService;
+import com.kairo_emocion.demo.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
-@Controller
-@RequestMapping("/users")
+@RestController
+@RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
     @GetMapping
-    public String listUsers(Model model) {
-        List<User> users = userService.findAll();
-        model.addAttribute("users", users);
-        return "user/list";
+    public List<User> getAllUsers() {
+        return userService.findAll();
     }
-
-
-    @GetMapping("/create")
-    public String showCreateForm(Model model) {
-        model.addAttribute("user", new User());
-        return "user/create";
-    }
-
-    @PostMapping("/create")
-    public String createUser(@Valid @ModelAttribute User user, BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            return "user/create";
-        }
-        try {
-            userService.save(user);
-            return "redirect:/users";
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al crear el usuario: " + e.getMessage());
-            return "user/create";
-        }
-    }
-
 
     @GetMapping("/{id}")
-    public String getUserDetails(@PathVariable Long id, Model model) {
-        Optional<User> user = userService.findById(id);
-        if (user.isPresent()) {
-            model.addAttribute("user", user.get());
-            return "user/details";
-        } else {
-            return "redirect:/users";
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        try {
+            User user = userService.findById(id);
+            return ResponseEntity.ok(user);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
-
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
-        Optional<User> user = userService.findById(id);
-        if (user.isPresent()) {
-            model.addAttribute("user", user.get());
-            return "user/edit";
-        } else {
-            return "redirect:/users";
-        }
-    }
-
-
-    @PostMapping("/edit/{id}")
-    public String updateUser(@PathVariable Long id, @Valid @ModelAttribute User user,
-                             BindingResult result, Model model) {
+    @PostMapping
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest userRequest, BindingResult result) {
         if (result.hasErrors()) {
-            return "user/edit";
+            return ResponseEntity.badRequest().body("Error de validación: " + result.getAllErrors());
         }
         try {
-            user.setId(id);
-            userService.save(user);
-            return "redirect:/users";
+            User user = new User();
+            user.setName(userRequest.getName());
+            user.setEmail(userRequest.getEmail());
+            user.setPassword(userRequest.getPassword());
+
+            User savedUser = userService.createUser(user);
+            return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
-            model.addAttribute("error", "Error al actualizar el usuario: " + e.getMessage());
-            return "user/edit";
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest userRequest, BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body("Error de validación: " + result.getAllErrors());
+        }
+        try {
+            User userData = new User();
+            userData.setName(userRequest.getName());
+            userData.setEmail(userRequest.getEmail());
+            userData.setPassword(userRequest.getPassword());
 
-    @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable Long id) {
-        userService.deleteById(id);
-        return "redirect:/users";
+            User updatedUser = userService.updateUser(id, userData);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteById(id);
+            return ResponseEntity.ok("Usuario eliminado");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
