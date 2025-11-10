@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
+import java.util.Optional;
+
 import com.kairo_emocion.demo.repository.EmotionRepository;
 import com.kairo_emocion.demo.model.Emotion;
 import com.kairo_emocion.demo.exception.ResourceNotFoundException;
@@ -15,12 +17,14 @@ public class EmotionService {
     private final EmotionRepository repo;
 
     @Autowired
+    private DiaryService diaryService;
+
+    @Autowired
     public EmotionService(EmotionRepository repo) {
         this.repo = repo;
     }
 
     public Emotion createEmotion(Emotion emotion) {
-        // Validaciones básicas
         if (emotion.getName() == null || emotion.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre de la emoción no puede estar vacío");
         }
@@ -31,7 +35,6 @@ public class EmotionService {
             throw new IllegalArgumentException("La intensidad debe estar entre 1 y 5");
         }
 
-        // Verificar si ya existe una emoción con el mismo nombre
         if (repo.findByName(emotion.getName()).isPresent()) {
             throw new IllegalArgumentException("Ya existe una emoción con este nombre: " + emotion.getName());
         }
@@ -43,17 +46,13 @@ public class EmotionService {
         return repo.findAll();
     }
 
-    public java.util.Optional<Emotion> findById(Long id) {
-        return repo.findById(id);
-    }
-
-    public Emotion getById(Long id) {
+    public Emotion findById(Long id) {
         return repo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Emoción no encontrada: " + id));
     }
 
     public Emotion updateEmotion(Long id, Emotion emotionData) {
-        Emotion emotion = getById(id);
+        Emotion emotion = findById(id);
         emotion.setName(emotionData.getName());
         emotion.setDescription(emotionData.getDescription());
         emotion.setColor(emotionData.getColor());
@@ -66,16 +65,16 @@ public class EmotionService {
     }
 
     public void deleteById(Long id) {
-        Emotion emotion = getById(id);
+        Emotion emotion = findById(id);
 
-        if (emotion.getDiarios() != null && !emotion.getDiarios().isEmpty()) {
+        if (diaryService.isEmotionUsed(id)) {
             throw new IllegalStateException("No se puede eliminar la emoción porque está siendo usada en entradas del diario");
         }
 
         repo.delete(emotion);
     }
 
-    public java.util.Optional<Emotion> findByName(String name) {
+    public Optional<Emotion> findByName(String name) {
         return repo.findByName(name);
     }
 
