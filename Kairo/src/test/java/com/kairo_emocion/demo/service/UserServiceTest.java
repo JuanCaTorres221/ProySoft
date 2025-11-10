@@ -119,13 +119,14 @@ class UserServiceTest {
         user.setName("A borrar");
 
         when(userRepository.findById(4L)).thenReturn(Optional.of(user));
-        doNothing().when(userRepository).deleteById(4L);
+        doNothing().when(userRepository).delete(user); // 👈 cambiamos aquí
 
         assertDoesNotThrow(() -> userService.deleteById(4L));
 
         verify(userRepository, times(1)).findById(4L);
-        verify(userRepository, times(1)).deleteById(4L);
+        verify(userRepository, times(1)).delete(user); // 👈 y aquí también
     }
+
 
     @Test
     void testUserValidation_ShouldDetectInvalidData() {
