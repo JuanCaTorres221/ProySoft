@@ -2,8 +2,7 @@ package com.kairo_emocion.demo.controller;
 
 import com.kairo_emocion.demo.dto.DiaryRequest;
 import com.kairo_emocion.demo.model.Diary;
-import com.kairo_emocion.demo.model.User;
-import com.kairo_emocion.demo.model.Emotion;
+import com.kairo_emocion.demo.exception.ResourceNotFoundException;
 import com.kairo_emocion.demo.service.DiaryService;
 import com.kairo_emocion.demo.service.UserService;
 import com.kairo_emocion.demo.service.EmotionService;
