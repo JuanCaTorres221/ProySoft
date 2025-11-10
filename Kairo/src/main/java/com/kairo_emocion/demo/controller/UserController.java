@@ -5,6 +5,8 @@ import com.kairo_emocion.demo.model.User;
 import com.kairo_emocion.demo.service.UserService;
 import com.kairo_emocion.demo.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
