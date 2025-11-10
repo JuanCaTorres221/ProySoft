@@ -78,7 +78,7 @@ public class EmotionController {
     public ResponseEntity<?> deleteEmotion(@PathVariable Long id) {
         try {
             emotionService.deleteById(id);
-            return ResponseEntity.ok("Emoción eliminada");
+            return ResponseEntity.ok("Emocion eliminada");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
