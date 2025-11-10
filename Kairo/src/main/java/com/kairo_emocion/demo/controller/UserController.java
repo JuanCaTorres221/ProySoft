@@ -1,15 +1,18 @@
 package com.kairo_emocion.demo.controller;
 
-import com.kairo_emocion.demo.exception.ResourceNotFoundException;
+import com.kairo_emocion.demo.dto.UserRequest;
 import com.kairo_emocion.demo.model.User;
 import com.kairo_emocion.demo.service.UserService;
+import com.kairo_emocion.demo.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -17,6 +20,11 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.findAll();
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
@@ -28,13 +36,17 @@ public class UserController {
         }
     }
 
-    // POST - Crear usuario
     @PostMapping
-    public ResponseEntity<?> createUser(@Valid @RequestBody User user, BindingResult result) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest userRequest, BindingResult result) {
         if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body("Error de validación");
+            return ResponseEntity.badRequest().body("Error de validación: " + result.getAllErrors());
         }
         try {
+            User user = new User();
+            user.setName(userRequest.getName());
+            user.setEmail(userRequest.getEmail());
+            user.setPassword(userRequest.getPassword());
+
             User savedUser = userService.createUser(user);
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
@@ -42,14 +54,17 @@ public class UserController {
         }
     }
 
-
-
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody User userData, BindingResult result) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest userRequest, BindingResult result) {
         if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body("Error de validación");
+            return ResponseEntity.badRequest().body("Error de validación: " + result.getAllErrors());
         }
         try {
+            User userData = new User();
+            userData.setName(userRequest.getName());
+            userData.setEmail(userRequest.getEmail());
+            userData.setPassword(userRequest.getPassword());
+
             User updatedUser = userService.updateUser(id, userData);
             return ResponseEntity.ok(updatedUser);
         } catch (Exception e) {
