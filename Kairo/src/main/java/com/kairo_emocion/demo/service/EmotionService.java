@@ -31,8 +31,8 @@ public class EmotionService {
         if (emotion.getColor() == null || emotion.getColor().trim().isEmpty()) {
             throw new IllegalArgumentException("El color no puede estar vacío");
         }
-        if (emotion.getIntensity() == null || emotion.getIntensity() < 1 || emotion.getIntensity() > 5) {
-            throw new IllegalArgumentException("La intensidad debe estar entre 1 y 5");
+        if (emotion.getIntensity() == null || emotion.getIntensity() < 1 || emotion.getIntensity() > 10) {
+            throw new IllegalArgumentException("La intensidad debe estar entre 1 y 10");
         }
 
         if (repo.findByName(emotion.getName()).isPresent()) {
