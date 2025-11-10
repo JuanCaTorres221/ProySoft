@@ -120,7 +120,7 @@ class EmotionServiceTest {
         Emotion invalid = new Emotion();
         invalid.setName("");          // viola @NotBlank
         invalid.setColor("");         // viola @NotBlank
-        invalid.setIntensity(10);     // viola @Max(5), asumiendo @Max(5)
+        invalid.setIntensity(11);     // viola @Max(5), asumiendo @Max(5)
 
         Set<ConstraintViolation<Emotion>> violations = validator.validate(invalid);
 

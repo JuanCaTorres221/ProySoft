@@ -19,13 +19,14 @@ public class Emotion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El nombre no puede estar vacío")
     @Column(nullable = false, unique = true)
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "El color no puede estar vacío")
     private String color;
 
-    @NotNull
+    @NotNull(message = "La intensidad es obligatoria")
     @Min(1)
     @Max(10)
     private Integer intensity;
