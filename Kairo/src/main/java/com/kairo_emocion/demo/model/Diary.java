@@ -1,92 +1,47 @@
-package com.kairo_emocion.demo.service;
+package com.kairo_emocion.demo.model;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDate;
-import com.kairo_emocion.demo.repository.DiaryRepository;
-import com.kairo_emocion.demo.model.Diary;
-import com.kairo_emocion.demo.exception.ResourceNotFoundException;
 
-@Service
-@Transactional
-public class DiaryService {
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Diary {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private final DiaryRepository repo;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
+    private User user;
 
-    @Autowired
-    public DiaryService(DiaryRepository repo) {
-        this.repo = repo;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "emotion_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Emotion emotion;
 
-    public Diary createDiaryEntry(Diary diary) {
-        if (diary.getUser() == null) {
-            throw new IllegalArgumentException("La entrada del diario debe estar asociada a un usuario");
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
+    @Column(nullable = false)
+    private LocalDate entryDate;
+
+    @Column(name = "created_at")
+    private java.time.LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = java.time.LocalDateTime.now();
+        if (entryDate == null) {
+            entryDate = LocalDate.now();
         }
-        if (diary.getEmotion() == null) {
-            throw new IllegalArgumentException("La entrada del diario debe tener una emoción asociada");
-        }
-        if (diary.getEntryDate() == null) {
-            throw new IllegalArgumentException("La fecha de la entrada no puede estar vacía");
-        }
-
-        return repo.save(diary);
-    }
-
-    public List<Diary> findAll() {
-        return repo.findAll();
-    }
-
-    public Diary findById(Long id) {
-        return repo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Entrada del diario no encontrada: " + id));
-    }
-
-    public Diary updateDiaryEntry(Long id, Diary diaryData) {
-        Diary diary = findById(id);
-        diary.setUser(diaryData.getUser());
-        diary.setEmotion(diaryData.getEmotion());
-        diary.setNotes(diaryData.getNotes());
-        diary.setEntryDate(diaryData.getEntryDate());
-        return repo.save(diary);
-    }
-
-    public Diary save(Diary diary) {
-        return repo.save(diary);
-    }
-
-    public void deleteById(Long id) {
-        Diary diary = findById(id);
-        repo.delete(diary);
-    }
-
-    public boolean isEmotionUsed(Long emotionId) {
-        List<Diary> entries = repo.findByEmotionId(emotionId);
-        return !entries.isEmpty();
-    }
-
-    public List<Diary> findByUserId(Long userId) {
-        return repo.findByUserId(userId);
-    }
-
-    public List<Diary> findByUserAndDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
-        return repo.findByUserIdAndEntryDateBetween(userId, startDate, endDate);
-    }
-
-    public List<Diary> findByEmotionId(Long emotionId) {
-        return repo.findByEmotionId(emotionId);
-    }
-
-    public List<Diary> findByEntryDate(LocalDate entryDate) {
-        return repo.findByEntryDate(entryDate);
-    }
-
-    public List<Diary> findByUserIdAndEmotionId(Long userId, Long emotionId) {
-        return repo.findByUserIdAndEmotionId(userId, emotionId);
-    }
-
-    public boolean existsByUserIdAndEntryDate(Long userId, LocalDate entryDate) {
-        return repo.existsByUserIdAndEntryDate(userId, entryDate);
     }
 }
