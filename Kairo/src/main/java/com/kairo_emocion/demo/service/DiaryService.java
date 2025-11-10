@@ -21,7 +21,6 @@ public class DiaryService {
     }
 
     public Diary createDiaryEntry(Diary diary) {
-        // Validaciones básicas
         if (diary.getUser() == null) {
             throw new IllegalArgumentException("La entrada del diario debe estar asociada a un usuario");
         }
@@ -39,17 +38,13 @@ public class DiaryService {
         return repo.findAll();
     }
 
-    public java.util.Optional<Diary> findById(Long id) {
-        return repo.findById(id);
-    }
-
-    public Diary getById(Long id) {
+    public Diary findById(Long id) {
         return repo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entrada del diario no encontrada: " + id));
     }
 
     public Diary updateDiaryEntry(Long id, Diary diaryData) {
-        Diary diary = getById(id);
+        Diary diary = findById(id);
         diary.setUser(diaryData.getUser());
         diary.setEmotion(diaryData.getEmotion());
         diary.setNotes(diaryData.getNotes());
@@ -62,8 +57,13 @@ public class DiaryService {
     }
 
     public void deleteById(Long id) {
-        Diary diary = getById(id);
+        Diary diary = findById(id);
         repo.delete(diary);
+    }
+
+    public boolean isEmotionUsed(Long emotionId) {
+        List<Diary> entries = repo.findByEmotionId(emotionId);
+        return !entries.isEmpty();
     }
 
     public List<Diary> findByUserId(Long userId) {
