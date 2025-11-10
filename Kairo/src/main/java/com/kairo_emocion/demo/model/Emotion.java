@@ -1,11 +1,9 @@
 package com.kairo_emocion.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Emotion {
 
     @Id
@@ -26,7 +25,9 @@ public class Emotion {
     @NotBlank
     private String color;
 
-    @NotBlank
+    @NotNull
+    @Min(1)
+    @Max(10)
     private Integer intensity;
 
     @Column(columnDefinition = "TEXT")
