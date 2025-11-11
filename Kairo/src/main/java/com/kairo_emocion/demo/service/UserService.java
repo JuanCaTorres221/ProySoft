@@ -76,6 +76,7 @@ public class UserService {
         return repo.findByEmail(email);
     }
 
+
     public boolean existsByEmail(String email) {
         return repo.findByEmail(email).isPresent();
     }
