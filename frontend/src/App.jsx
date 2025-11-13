@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import HomePage from "./pages/HomePage";
+import StatsPage from "./pages/StatsPage";
+
 
 function App() {
   const isAuthenticated = !!localStorage.getItem("userId");
@@ -27,6 +29,9 @@ function App() {
           path="/home"
           element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />}
         />
+        <Route
+            path="/stats"
+            element={<StatsPage />} />
       </Routes>
     </Router>
   );

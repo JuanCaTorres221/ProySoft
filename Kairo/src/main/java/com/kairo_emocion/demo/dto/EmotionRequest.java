@@ -21,7 +21,7 @@ public class EmotionRequest {
 
     @NotNull(message = "La intensidad es obligatoria")
     @Min(value = 1, message = "La intensidad debe ser al menos 1")
-    @Max(value = 5, message = "La intensidad debe ser máximo 5")
+    @Max(value = 10, message = "La intensidad debe ser máximo 5")
     private Integer intensity;
 
     private String description;

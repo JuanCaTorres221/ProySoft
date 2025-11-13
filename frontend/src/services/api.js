@@ -62,21 +62,45 @@ export async function deleteDiary(id) {
   return true;
 }
 
+
+export const updateDiary = async (id, updatedData) => {
+  try {
+    const response = await fetch(`http://localhost:8080/api/diaries/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al actualizar el diario");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error en updateDiary:", error);
+    throw error;
+  }
+};
+
+
+
+
+
+// 🔹 Obtener emociones predefinidas
 // 🔹 Obtener emociones predefinidas
 export async function getEmotions() {
-  // Puedes cambiar este endpoint si tu backend lo tiene
-  // pero por ahora devolvemos una lista fija predefinida
   return [
-    { id: 1, name: "Feliz", color: "amarillo", intensity: 5, description: "Me siento alegre y motivado" },
-    { id: 2, name: "Triste", color: "azul", intensity: 3, description: "Me siento decaído o melancólico" },
-    { id: 3, name: "Enojado", color: "rojo", intensity: 4, description: "Estoy molesto o frustrado" },
-    { id: 4, name: "Ansioso", color: "naranja", intensity: 4, description: "Tengo nerviosismo o preocupación" },
-    { id: 5, name: "Sorprendido", color: "verde", intensity: 3, description: "Algo inesperado me ha sorprendido" },
-    { id: 6, name: "Calmado", color: "celeste", intensity: 2, description: "Estoy tranquilo y relajado" },
-    { id: 7, name: "Cansado", color: "gris", intensity: 3, description: "Estoy agotado o con poca energía" },
-    { id: 8, name: "Motivado", color: "violeta", intensity: 5, description: "Tengo energía y determinación" },
+    { id: 1, name: "Triste", color: "azul", intensity: 2, description: "Sentimiento de pena o melancolía" },
+    { id: 2, name: "Enojado", color: "rojo", intensity: 4, description: "Sentimiento de ira o frustración" },
+    { id: 3, name: "Cansado", color: "gris", intensity: 2, description: "Sensación de agotamiento físico o mental" },
+    { id: 4, name: "Ansioso", color: "naranja", intensity: 3, description: "Estado de inquietud o preocupación" },
+    { id: 5, name: "Sorprendido", color: "verde", intensity: 4, description: "Reacción ante algo inesperado" },
+    { id: 6, name: "Calmado", color: "dorado", intensity: 5, description: "Sensación de calma y tranquilidad" },
+    { id: 7, name: "Motivado", color: "violeta", intensity: 4, description: "Deseo de lograr algo con entusiasmo" },
+    { id: 8, name: "Feliz", color: "amarillo", intensity: 5, description: "Sentimiento de alegría y bienestar" }
   ];
 }
+
 
 // 🔹 (Opcional) Crear una emoción desde el front si luego lo permites
 export async function createEmotion(emotionData) {
