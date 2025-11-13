@@ -46,18 +46,16 @@ public class DiaryController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createDiary(@Valid @RequestBody DiaryRequest diaryRequest, BindingResult result) {
+    public ResponseEntity<?> createDiary(@Valid @RequestBody DiaryRequest diaryRequest,
+                                         BindingResult result) {
         if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body("Error de validación: " + result.getAllErrors());
+            return ResponseEntity.badRequest()
+                    .body("Error de validación: " + result.getAllErrors());
         }
         try {
-            // Buscar el usuario
             User user = userService.findById(diaryRequest.getUserId());
-
-            // Buscar la emoción
             Emotion emotion = emotionService.findById(diaryRequest.getEmotionId());
 
-            // Crear la entidad Diary
             Diary diary = new Diary();
             diary.setUser(user);
             diary.setEmotion(emotion);
@@ -67,9 +65,8 @@ public class DiaryController {
             Diary savedDiary = diaryService.save(diary);
             return ResponseEntity.ok(savedDiary);
 
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.badRequest().body("Recurso no encontrado: " + e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace(); // <--- AGREGA ESTO
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
@@ -98,6 +95,7 @@ public class DiaryController {
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.badRequest().body("Recurso no encontrado: " + e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
@@ -111,6 +109,7 @@ public class DiaryController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getDiariesByUser(@PathVariable Long userId) {
