@@ -86,7 +86,4 @@ public class DiaryService {
         return repo.findByUserIdAndEmotionId(userId, emotionId);
     }
 
-    public boolean existsByUserIdAndEntryDate(Long userId, LocalDate entryDate) {
-        return repo.existsByUserIdAndEntryDate(userId, entryDate);
-    }
 }

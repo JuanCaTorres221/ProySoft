@@ -37,17 +37,16 @@ public class Diary {
     private String notes;
 
     @Column(nullable = false)
-    @NotNull(message = "La fecha de entrada es obligatoria")
     private LocalDate entryDate;
 
     @Column(name = "created_at")
-    private java.time.LocalDateTime createdAt;
+    private java.time.LocalDate createdAt;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = java.time.LocalDateTime.now();
+        createdAt = java.time.LocalDate.now();
         if (entryDate == null) {
-            entryDate = LocalDate.now();
+            entryDate = java.time.LocalDate.now();
         }
     }
 }

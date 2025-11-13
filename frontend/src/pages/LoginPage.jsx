@@ -1,58 +1,81 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 
-export default function LoginPage() {
-  const navigate = useNavigate();
+function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
     try {
-      const user = await loginUser(email, password);
-      console.log("Usuario logeado:", user);
-      navigate("/home"); // redirige al home
+      const data = await loginUser(email, password);
+      console.log("Usuario logueado:", data);
+
+      // Si el backend devuelve data.user.id, usa eso
+      const userId = data.id || data.user?.id;
+
+      if (!userId) {
+        throw new Error("No se encontró el ID del usuario en la respuesta.");
+      }
+
+      // Guardar datos en localStorage
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("token", data.token || "");
+
+      // Redirigir al home
+      navigate("/home", { replace: true });
+      window.location.reload(); // 🔹 fuerza recarga para que App.jsx detecte login
     } catch (err) {
-      setError("Credenciales incorrectas o usuario no encontrado.");
+      console.error("Error al iniciar sesión:", err);
+      setError("Correo o contraseña incorrectos");
     }
   };
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gray-100">
-      <h1 className="text-3xl font-bold text-blue-600 mb-6">Iniciar Sesión</h1>
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl shadow-md w-80 flex flex-col gap-4">
-        <input
-          type="email"
-          placeholder="Correo electrónico"
-          className="border p-2 rounded"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          className="border p-2 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-        <button
-          type="submit"
-          className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-        >
-          Entrar
-        </button>
-        <p className="text-sm text-center">
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded-2xl shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-6 text-center">Iniciar Sesión</h2>
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            placeholder="Correo electrónico"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 mb-4 border rounded-lg"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 mb-4 border rounded-lg"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition"
+          >
+            Entrar
+          </button>
+        </form>
+
+        <p className="text-center mt-4 text-sm">
           ¿No tienes cuenta?{" "}
-          <a href="/register" className="text-blue-600 hover:underline">
+          <button
+            onClick={() => navigate("/register")}
+            className="text-blue-600 hover:underline"
+          >
             Regístrate
-          </a>
+          </button>
         </p>
-      </form>
+      </div>
     </div>
   );
 }
+
+export default LoginPage;

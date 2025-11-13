@@ -2,16 +2,15 @@ package com.kairo_emocion.demo.controller;
 
 import com.kairo_emocion.demo.dto.EmotionRequest;
 import com.kairo_emocion.demo.model.Emotion;
+import com.kairo_emocion.demo.repository.EmotionRepository;
 import com.kairo_emocion.demo.exception.ResourceNotFoundException;
 import com.kairo_emocion.demo.service.EmotionService;
-import com.kairo_emocion.demo.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-
 import java.util.List;
 
 @RestController
@@ -20,11 +19,6 @@ public class EmotionController {
 
     @Autowired
     private EmotionService emotionService;
-
-    @GetMapping
-    public List<Emotion> getAllEmotions() {
-        return emotionService.findAll();
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Emotion> getEmotionById(@PathVariable Long id) {
@@ -82,5 +76,15 @@ public class EmotionController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+    private final EmotionRepository emotionRepository;
+
+    public EmotionController(EmotionRepository emotionRepository) {
+        this.emotionRepository = emotionRepository;
+    }
+
+    @GetMapping
+    public List<Emotion> getAllEmotions() {
+        return emotionRepository.findAll();
     }
 }
