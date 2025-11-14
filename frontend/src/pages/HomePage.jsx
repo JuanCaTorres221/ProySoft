@@ -85,7 +85,6 @@ export default function HomePage() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este diario?")) return;
     try {
       await deleteDiary(id);
       setDiaries(diaries.filter((d) => d.id !== id));
