@@ -172,7 +172,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               style={{
-                width: "92%",
+                width: "100%",
                 backgroundColor: "#000000",
                 color: "#ffffff",
                 padding: "1.25rem",
@@ -208,7 +208,7 @@ export default function RegisterPage() {
           <button
             style={{
               fontWeight: "600",
-              color: "#2563eb",
+              color: "#0000000",
               background: "none",
               border: "none",
               cursor: "pointer",
@@ -216,8 +216,8 @@ export default function RegisterPage() {
               fontSize: "1.125rem",
               transition: "color 0.3s"
             }}
-            onMouseOver={(e) => (e.target.style.color = "#1e40af")}
-            onMouseOut={(e) => (e.target.style.color = "#2563eb")}
+            onMouseOver={(e) => (e.target.style.color = "#0000000")}
+            onMouseOut={(e) => (e.target.style.color = "#0000000")}
             onClick={() => navigate("/login")}
           >
             Login

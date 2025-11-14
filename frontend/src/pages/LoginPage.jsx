@@ -39,7 +39,7 @@ function LoginPage() {
           width: '100%',
           maxWidth: '24rem',
           padding: ' 1rem 2rem',
-          borderRadius: '1.5rem',
+          borderRadius: '1rem',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           margin: '1rem 1.5rem'
         }}
@@ -150,6 +150,7 @@ function LoginPage() {
         <div
           style={{
             textAlign: 'center',
+            color: '#0000000',
             borderTop: '1px solid #e5e7eb',
             paddingTop: '1.5rem',
             marginTop: '1.5rem',
@@ -164,11 +165,11 @@ function LoginPage() {
           <button
             style={{
               fontWeight: '600',
-              color: '#2563eb',
+              fontSize:'100px',
+              color: '#0000000',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              textDecoration: 'underline',
               fontSize: '1rem'
             }}
             onClick={() => navigate("/register")}

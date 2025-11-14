@@ -282,7 +282,25 @@ export default function StatsPage() {
                   ))}
                 </div>
           </div>
-        </div>
+          <div>
+                            <h2 style = {{fontSize: '1.5rem', fontWeight: 'bold', color: '#1F2937', marginBottom: '1rem' }}> Tendencia de emociones</h2>
+                            <div style = {{display: 'flex', justifyContent: 'center', backgroundColor: '#F8FAFC', padding: '1rem', borderRadius: '1rem'}}>
+                            <LineChart width={600} height={300} data={sortedDiaries}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="entryDate" />
+                              <YAxis />
+                              <Tooltip />
+                              <Legend />
+                              <Line
+                                type="monotone"
+                                dataKey="emotion.id"
+                                stroke="#8884d8"
+                                name="Emoción (ID)"
+                              />
+                            </LineChart>
+                            </div>
+                          </div>
+                  </div>
       </div>
     </AuthBackground>
   );
