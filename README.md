@@ -15,3 +15,7 @@ npm install recharts
 
 
 NOTA: en el caso de que en "npm install" le pregunte descargar darle a (y)
+
+Despues en la carpeta kairo/src/main/.../mainkairoapplication, ese archivo se corre
+
+y en la terminal CMD nos ubicamos en la carpeta de frontend y ejecutamos "npm run dev"
