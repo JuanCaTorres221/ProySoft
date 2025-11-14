@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
+import AuthBackground from "../components/AuthBackground.jsx";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,20 +15,16 @@ function LoginPage() {
       const data = await loginUser(email, password);
       console.log("Usuario logueado:", data);
 
-      // Si el backend devuelve data.user.id, usa eso
       const userId = data.id || data.user?.id;
-
       if (!userId) {
         throw new Error("No se encontró el ID del usuario en la respuesta.");
       }
 
-      // Guardar datos en localStorage
       localStorage.setItem("userId", userId);
       localStorage.setItem("token", data.token || "");
 
-      // Redirigir al home
       navigate("/home", { replace: true });
-      window.location.reload(); // 🔹 fuerza recarga para que App.jsx detecte login
+      window.location.reload();
     } catch (err) {
       console.error("Error al iniciar sesión:", err);
       setError("Correo o contraseña incorrectos");
@@ -35,46 +32,154 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Iniciar Sesión</h2>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 mb-4 border rounded-lg"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 mb-4 border rounded-lg"
-            required
-          />
+    <AuthBackground>
+      <div
+        style={{
+          backgroundColor: '#FFE675',
+          width: '100%',
+          maxWidth: '24rem',
+          padding: ' 1rem 2rem',
+          borderRadius: '1.5rem',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          margin: '1rem 1.5rem'
+        }}
+        className="flex flex-col"
+      >
+
+        {/* HEADER */}
+                <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+                  <h2
+                    style={{
+                      fontSize: "1.5rem",
+                      fontWeight: "bold",
+                      color: "#1f2937",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    KAIRO😀
+                  </h2>
+
+
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+            <div
+              style={{
+                backgroundColor: '#facc15',
+                border: '4px solid #000000',
+                borderRadius: '9999px',
+                padding: '0.75rem'
+              }}
+            >
+              <span style={{ fontSize: '1.75rem' }}>👤</span>
+            </div>
+          </div>
+        </div>
+
+        {error && (
+          <p style={{ color: '#ef4444', textAlign: 'center', fontSize: '1rem', marginBottom: '0.75rem' }}>
+            {error}
+          </p>
+        )}
+
+        {/* FORMULARIO */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+          {/* EMAIL */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <label style={{ fontSize: '1rem', fontWeight: '500', color: '#374151' }}>
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                width: '92%',
+                padding: '1rem',
+                fontSize: '1rem',
+                border: '3px solid #d1d5db',
+                borderRadius: '0.75rem',
+                backgroundColor: '#f7f7f7',
+                transition: 'all 0.3s'
+              }}
+            />
+          </div>
+
+          {/* PASSWORD */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <label style={{ fontSize: '1rem', fontWeight: '500', color: '#374151' }}>
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                width: '92%',
+                padding: '1rem',
+                fontSize: '1rem',
+                border: '3px solid #d1d5db',
+                borderRadius: '0.75rem',
+                backgroundColor: '#f7f7f7',
+                transition: 'all 0.3s'
+              }}
+            />
+          </div>
+
+          {/* BOTÓN */}
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition"
+            style={{
+              width: '100%',
+              backgroundColor: '#000000',
+              color: '#ffffff',
+              padding: '1rem',
+              fontSize: '1.1rem',
+              borderRadius: '0.75rem',
+              fontWeight: 'bold',
+              border: 'none',
+              cursor: 'pointer',
+              marginTop: '0.5rem'
+            }}
           >
-            Entrar
+            Login
           </button>
+
         </form>
 
-        <p className="text-center mt-4 text-sm">
-          ¿No tienes cuenta?{" "}
+        {/* REGISTER */}
+        <div
+          style={{
+            textAlign: 'center',
+            borderTop: '1px solid #e5e7eb',
+            paddingTop: '1.5rem',
+            marginTop: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.5rem'
+          }}
+        >
+          <p style={{ color: '#6b7280', fontSize: '0.85rem' }}>
+            Don't have an account?
+          </p>
           <button
+            style={{
+              fontWeight: '600',
+              color: '#2563eb',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              fontSize: '1rem'
+            }}
             onClick={() => navigate("/register")}
-            className="text-blue-600 hover:underline"
           >
-            Regístrate
+            Register
           </button>
-        </p>
+        </div>
+
       </div>
-    </div>
+    </AuthBackground>
+
   );
 }
 
