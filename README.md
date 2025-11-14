@@ -2,7 +2,7 @@ Proyecto de desarrollo de software enfocado en la creacion de un sistema de gest
 
 
 NOTA IMPORTANTE, AL HACER GIT CLONE, IR AL CMD Y SELECCIONAR LA CARPETA DE FRONTEND.
-UNA VEZ AHI COPIARÁ Y PEGARÁ LOS SIGUIENTES COMANDOS PARA PODER CORRER BIEN EL FRONT:
+UNA VEZ AHI COPIARÁ Y PEGARÁ LOS SIGUIENTES COMANDOS PARA PODER CORRER BIEN EL FRONT (esto creo que solo funciona en windows, en mac no se como funciona la terminal y no se ha probado):
 
 
 npm install
